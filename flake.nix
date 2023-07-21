@@ -145,7 +145,17 @@
   } //
     utils.lib.eachSystem (utils.lib.defaultSystems ++ ["aarch64-darwin" "armv6l-linux" ]) (system:
       let
-        pkgs = import nixpkgs { inherit system; overlays = [ self.overlay ]; };
+        pkgs = import nixpkgs { 
+					#inherit system; 
+					# THIS IS VERY INDIVIDUAL, but it does work
+					# flake-utils should implement something for supporting stuff like this
+					# NOTE: Does not work with the version of nixpkgs pinned in flake.lock
+					# 			Or maybe it does work, but it tries to compile rustc, which is too slow
+					# 			It SHOULD work when using 'inputs.nixpkgs.follows = "nixpkgs"' together with a recent nixpkgs
+					system = "x86_64-linux";
+					crossSystem = nixpkgs.lib.systems.examples.raspberryPi;
+					overlays = [ self.overlay ]; 
+				};
       in
       {
         defaultPackage = self.packages."${system}".deploy-rs;
